@@ -44,6 +44,7 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+extend-exclude = ["app/engine/gen"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]
@@ -52,3 +53,12 @@ select = ["E", "F", "I", "UP"]
 python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = "app.engine.gen.*"
+ignore_errors = true
+follow_imports = "skip"
+
+[[tool.mypy.overrides]]
+module = ["grpc", "grpc.*"]
+ignore_missing_imports = true

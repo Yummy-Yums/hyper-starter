@@ -1,4 +1,4 @@
-from app.engine.base import ExecResult
+from app.engine.base import ExecResult, VmInfo
 
 
 class FakeEngine:
@@ -8,6 +8,7 @@ class FakeEngine:
         self.created: dict[str, tuple[str, str]] = {}
         self.stopped: list[str] = []
         self._vms_by_key: dict[str, str] = {}
+        self.nodes: dict[str, str] = {}
 
     async def create_vm(
         self,
@@ -24,6 +25,7 @@ class FakeEngine:
         vm_id = f"fake-{sandbox_id}"
         self._vms_by_key[idempotency_key] = vm_id
         self.created[vm_id] = (image, vm_type)
+        self.nodes.setdefault(vm_id, "fake-node")
         return vm_id
 
     async def stop_vm(self, vm_id: str, *, idempotency_key: str) -> None:
@@ -32,3 +34,7 @@ class FakeEngine:
 
     async def execute(self, sandbox_id: str, command: tuple[str, ...]) -> ExecResult:
         return ExecResult(exit_code=0, stdout=f"fake execution for {sandbox_id}".encode())
+
+    async def list_vms(self) -> list[VmInfo]:
+        running = [vm for vm in self.created if vm not in self.stopped]
+        return [VmInfo(vm_id=vm, node=self.nodes.get(vm, "fake-node")) for vm in sorted(running)]

@@ -119,22 +119,33 @@ Run the reconciler worker once:
 .venv/bin/python - <<'PY'
 import asyncio
 
+from app.api.deps import get_engine
 from app.db.session import SessionFactory
-from app.engine.fake import FakeEngine
 from app.workers.reconciler import reconcile_once
 
 
 async def main() -> None:
-    async with SessionFactory() as session:
-        changed = await reconcile_once(session, FakeEngine())
-        print(f"reconciled={changed}")
+    engine = get_engine()
+    try:
+        async with SessionFactory() as session:
+            changed = await reconcile_once(session, engine)
+            print(f"reconciled={changed}")
+    finally:
+        close = getattr(engine, "close", None)
+        if close is not None:
+            await close()
 
 
 asyncio.run(main())
 PY
 ```
 
-With the default `ENGINE_BACKEND=fake`, this is a simulated VM. The gRPC engine adapter is still a placeholder.
+`get_engine()` selects the backend from `.env`:
+
+- `ENGINE_BACKEND=fake` (default) simulates the VM.
+- `ENGINE_BACKEND=grpc` calls the real Hyper service at `GRPC_TARGET`.
+
+For gRPC, the first run calls `LoadImage` for the sandbox image, which can take several minutes. Set `GRPC_TARGET`, `GRPC_ARCH`, and `GRPC_USE_TLS` as needed.
 
 ## 5. Use the sandbox
 
@@ -241,4 +252,4 @@ The reaper uses `SANDBOX_IDLE_TIMEOUT_SECONDS` from `.env`, defaulting to `1800`
 - Requests are rate limited per tenant by `RATE_LIMIT_PER_MINUTE`, default `60`.
 - SQLite runs in WAL mode with foreign keys enabled and a 30-second busy timeout.
 - Tests apply Alembic migrations to temporary SQLite databases; they do not use `create_all()`.
-- For a real VM backend, set `ENGINE_BACKEND=grpc` and implement `app/engine/grpc_engine.py`.
+- For a real VM backend, set `ENGINE_BACKEND=grpc` and configure `GRPC_TARGET`. The first VM creation also loads the OCI image and can take several minutes.

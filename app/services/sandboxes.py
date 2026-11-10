@@ -112,10 +112,10 @@ class SandboxService:
         engine: Engine,
     ) -> ExecResult:
         sandbox = await self.get(sandbox_id, tenant_id)
-        if sandbox.status != "running":
+        if sandbox.status != "running" or sandbox.vm_id is None:
             raise SandboxNotRunning(sandbox_id)
 
-        result = await engine.execute(str(sandbox.id), tuple(command))
+        result = await engine.execute(sandbox.vm_id, tuple(command))
         sandbox.last_active_at = datetime.now(UTC)
         sandbox = await self.repository.save(sandbox)
         await self.session.commit()

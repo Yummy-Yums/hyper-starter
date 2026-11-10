@@ -10,6 +10,12 @@ class Settings(BaseSettings):
     sandbox_idle_timeout_seconds: int = 1800
     admin_api_key: str = ""
     engine_backend: str = "fake"
+    grpc_target: str = "localhost:50051"
+    grpc_timeout_seconds: float = 30.0
+    grpc_image_timeout_seconds: float = 600.0
+    grpc_exec_timeout_ms: int = 60000
+    grpc_arch: str = "x86_64"
+    grpc_use_tls: bool = False
 
     model_config = SettingsConfigDict(
         env_file=".env",

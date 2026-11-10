@@ -9,6 +9,12 @@ class ExecResult:
     stderr: bytes = b""
 
 
+@dataclass(frozen=True, slots=True)
+class VmInfo:
+    vm_id: str
+    node: str
+
+
 class EngineError(Exception):
     pass
 
@@ -26,3 +32,5 @@ class Engine(Protocol):
     async def stop_vm(self, vm_id: str, *, idempotency_key: str) -> None: ...
 
     async def execute(self, sandbox_id: str, command: tuple[str, ...]) -> ExecResult: ...
+
+    async def list_vms(self) -> list[VmInfo]: ...

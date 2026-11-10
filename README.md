@@ -66,12 +66,12 @@ app/
   engine/
     base.py                # engine protocol/result/errors
     fake.py                # in-memory test double
-    grpc_engine.py         # production adapter placeholder
+    grpc_engine.py         # Hyper gRPC adapter
   workers/
     reaper.py
     reconciler.py
 proto/
-  hyper/grpc/v0/hyper.proto
+  hyper/grpc/v1/hyper.proto
 tests/
 ```
 
@@ -121,19 +121,33 @@ Workers are plain async functions that take a session and an `Engine`:
 
 Both claim rows with `FOR UPDATE SKIP LOCKED` on PostgreSQL and re-check the row status after locking. Engine calls use the sandbox id as an idempotency key, so a retry after a crash does not create a second VM or double-stop an existing one. No scheduler is included; call them from your job runner.
 
-## gRPC stubs
+## gRPC engine
 
-The example `.proto` is intentionally small. Generate Python stubs with:
+`GrpcEngine` implements the `Hyper` service contract in `proto/hyper/grpc/v1/hyper.proto`. Set:
+
+```dotenv
+ENGINE_BACKEND=grpc
+GRPC_TARGET=localhost:50051
+GRPC_ARCH=x86_64
+GRPC_USE_TLS=false
+```
+
+`create_vm()` calls `LoadImage` once per OCI image reference, then `CreateVm`. Short Docker-style references (`alpine`) are expanded to fully qualified refs (`docker.io/library/alpine:latest`) before `LoadImage`. `execute()` uses the `Exec` RPC. `StopVm` treats `NOT_FOUND` as an already-stopped VM.
+
+Regenerate Python stubs after changing the proto:
 
 ```bash
 uv run python -m grpc_tools.protoc \
   -I proto \
   --python_out=app/engine/gen \
   --grpc_python_out=app/engine/gen \
-  proto/hyper/grpc/v0/hyper.proto
+  proto/hyper/grpc/v1/hyper.proto
+
+sed -i 's|from hyper.grpc.v1 import hyper_pb2|from . import hyper_pb2|' \
+  app/engine/gen/hyper/grpc/v1/hyper_pb2_grpc.py
 ```
 
-The generated directory is ignored by Git by default only if you add it to `.gitignore`; commit generated stubs if you want reproducible builds, and record the `.proto` source revision/hash for vendored schemas.
+The generated package needs `__init__.py` files under `app/engine/gen/hyper/`; commit generated stubs if you want reproducible builds.
 
 ## Notes
 

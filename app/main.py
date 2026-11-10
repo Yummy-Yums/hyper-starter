@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 
+from app.api.deps import get_engine
 from app.api.rate_limit import limiter
 from app.api.routes.api_keys import router as api_keys_router
 from app.api.routes.health import router as health_router
@@ -15,9 +16,13 @@ from app.errors import DomainError
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    # Add startup/shutdown resources here (DB checks, worker lifecycle, telemetry).
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    engine = get_engine()
+    app.state.engine = engine
     yield
+    close = getattr(engine, "close", None)
+    if close is not None:
+        await close()
 
 
 def create_app() -> FastAPI:

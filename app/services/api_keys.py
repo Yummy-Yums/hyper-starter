@@ -14,10 +14,8 @@ from app.services.tenants import TenantNotFound
 
 LAST_USED_TOUCH_INTERVAL = timedelta(minutes=1)
 
-
 class ApiKeyNotFound(Exception):
     pass
-
 
 class ApiKeyService:
     def __init__(self, session: AsyncSession) -> None:

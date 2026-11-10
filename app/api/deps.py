@@ -8,7 +8,6 @@ from app.config import Settings, get_settings
 from app.db.session import get_session
 from app.engine.base import Engine
 from app.engine.fake import FakeEngine
-from app.engine.grpc_engine import GrpcEngine
 from app.services.api_keys import ApiKeyService
 from app.services.sandboxes import SandboxService
 from app.services.tenants import TenantService
@@ -23,6 +22,8 @@ def settings_dependency() -> Settings:
 @lru_cache
 def get_engine() -> Engine:
     if get_settings().engine_backend == "grpc":
+        from app.engine.grpc_engine import GrpcEngine
+
         return GrpcEngine()
     return FakeEngine()
 

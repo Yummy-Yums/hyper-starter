@@ -6,10 +6,12 @@ import httpx
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
+from app.api.deps import get_engine
 from app.api.rate_limit import limiter
 from app.api.schemas import ApiKeyCreate, TenantCreate
 from app.config import Settings
 from app.db.session import get_session
+from app.engine.fake import FakeEngine
 from app.main import app
 from app.services.api_keys import ApiKeyService
 from app.services.tenants import TenantService
@@ -52,6 +54,7 @@ async def api(
             yield session
 
     app.dependency_overrides[get_session] = override_get_session
+    app.dependency_overrides[get_engine] = lambda: FakeEngine()
     limiter.reset()
     async with httpx.AsyncClient(
         transport=httpx.ASGITransport(app=app), base_url="http://test"
