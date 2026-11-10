@@ -1,0 +1,54 @@
+[project]
+name = "hyper-starter"
+version = "0.1.0"
+description = "Starter FastAPI service with async SQLAlchemy, Pydantic settings, Alembic, gRPC scaffolding, OpenTelemetry hooks, rate limiting, and tests."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi",
+  "uvicorn[standard]",
+  "pydantic>=2",
+  "pydantic-settings",
+  "sqlalchemy[asyncio]>=2",
+  "asyncpg",
+  "alembic",
+  "grpcio",
+  "grpcio-tools",
+  "protobuf",
+  "httpx",
+  "slowapi",
+]
+
+[project.optional-dependencies]
+observability = [
+  "opentelemetry-api",
+  "opentelemetry-sdk",
+  "opentelemetry-instrumentation-fastapi",
+  "opentelemetry-instrumentation-grpc",
+  "opentelemetry-instrumentation-sqlalchemy",
+]
+dev = [
+  "pytest",
+  "pytest-asyncio",
+  "ruff",
+  "mypy",
+  "hypothesis",
+  "aiosqlite",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true

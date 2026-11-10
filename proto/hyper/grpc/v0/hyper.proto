@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package hyper.grpc.v0;
+
+// Starter service contract. Extend to match the actual engine API before deployment.
+service HyperEngine {
+  rpc Health(HealthRequest) returns (HealthResponse);
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  string status = 1;
+}
