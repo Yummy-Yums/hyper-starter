@@ -6,12 +6,39 @@ This walks through the full local flow:
 
 Run all commands from the repository root.
 
-## 1. Install, configure, and start
+## 1. Create a virtual environment, install, configure, and start
+
+### Create and activate the virtual environment
+
+The project uses Python 3.11. Create the local `.venv` and activate it:
+
+```bash
+uv venv --python 3.11
+source .venv/bin/activate
+```
+
+On Windows PowerShell:
+
+```powershell
+uv venv --python 3.11
+.venv\Scripts\Activate.ps1
+```
+
+If you are not using `uv`, create the environment with the standard library:
+
+```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
+```
+
+### Install dependencies
 
 ```bash
 uv sync --all-extras
 cp .env.example .env
 ```
+
+`uv sync` will also create `.venv` automatically if it does not exist.
 
 Edit `.env` and set an admin key:
 
