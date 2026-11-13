@@ -1,6 +1,6 @@
 # Hyper Starter
 
-This project is to demonstrate running [Hyper](https://hypervm.hexdocs.pm/readme.html) which is a VM orchestrator from a REST API. Hyper functionality can be only called via gRPC at the moment. This REST functionality will later be embedded in hyper  
+This project is to demonstrate running [Hyper](https://hypervm.hexdocs.pm/readme.html) which is a VM orchestrator by calling it's functionality through a REST. Hyper's interface is only gRPC at the moment. A REST interface will later be embedded 
 
 ## Requirements
 
