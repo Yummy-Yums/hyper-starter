@@ -1,6 +1,6 @@
 # Hyper Starter
 
-A runnable FastAPI starter based on the package list and project layout in your screenshots. It uses **uv** for dependency management.
+This project is to demonstrate running [Hyper](https://hypervm.hexdocs.pm/readme.html) which is a VM orchestrator from a REST API. Hyper functionality can be only called via gRPC at the moment. This REST functionality will later be embedded in hyper  
 
 ## Requirements
 
